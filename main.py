@@ -8,14 +8,14 @@ from typing import Annotated
 from fastapi import Depends
 from routers import user, teacher,student
 
-import schemas.schema as schema
+
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 app.include_router(user.router,prefix="/api", tags=["users"])
-#app.include_router(teacher.router)
-#app.include_router(student.router)
+app.include_router(teacher.router, prefix="/api", tags=["teachers"])
+app.include_router(student.router, prefix="/api", tags=["students"])
 
 def get_db():
     db = SessionLocal()
