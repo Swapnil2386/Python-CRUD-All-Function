@@ -23,6 +23,3 @@ def get_hashed_password(password: str):
         return _hashpassword
     else:
      None
-
-def get_user_by_username(username: str):
-    return fake_users_db.get(username)

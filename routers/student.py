@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException,status
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from connections.dependencies import get_db
+from auth.auth import get_current_user
 
 from models.student import Students
 import schemas.student as student_schema
@@ -11,7 +12,7 @@ import schemas.student as student_schema
 router = APIRouter()
 
 @router.get("/students/", response_model=list[student_schema.StudentResponse])
-def get_students(db: Session = Depends(get_db)):
+def get_students(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     result = db.execute(text("SELECT * FROM getAllStudents()")) 
     strudents = result.fetchall()
     return [
@@ -26,7 +27,7 @@ def get_students(db: Session = Depends(get_db)):
         for student in strudents
     ]
 @router.post("/students/", response_model=student_schema.StudentResponse)
-def create_student(student: student_schema.StudentCreate, db: Session = Depends(get_db)):
+def create_student(student: student_schema.StudentCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     try:
         db.execute(
             text("CALL InsertStudent(:name, :email, :address, :classid)"),

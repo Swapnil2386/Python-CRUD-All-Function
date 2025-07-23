@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from connections.dependencies import get_db
-from auth.auth import create_access_token
+from auth.auth import create_access_token, get_current_user
 from utility.password_utility import hash_password, verify_password
 
 from models import models
@@ -12,7 +12,7 @@ from schemas import schema
 router = APIRouter()
 
 @router.get("/users/", response_model=list[schema.UserResponse])
-def get_users(db: Session = Depends(get_db)):
+def get_users(db: Session = Depends(get_db),  current_user: dict = Depends(get_current_user)):
     return db.query(models.User).all()
 
 @router.post("/users/", response_model=schema.UserResponse)
@@ -55,8 +55,8 @@ def login(user_login: schema.UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="verifyed Invalid credentials")
     
     # If the user is found and the password is correct, create a token
-    access_token = create_access_token(data={"sub": user.email})
-    return schema.Token(access_token=access_token, token_type="bearer")
+    access_token = create_access_token(data={"sub": user.email,"UserId": user.id})
+    return schema.Token(access_token=access_token, token_type="bearer", user_id=user.id, email=user.email, name=user.name)
 
 
 

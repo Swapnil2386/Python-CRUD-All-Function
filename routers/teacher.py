@@ -3,6 +3,7 @@ import traceback
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException,status
 from sqlalchemy.orm import Session
+from auth.auth import get_current_user
 from connections.dependencies import get_db
 
 
@@ -14,13 +15,13 @@ import schemas.teacher as teacher_schema
 router = APIRouter()
 
 @router.get("/teachers/", response_model=list[teacher_schema.TeacherResponse])
-def get_teachers(db: Session = Depends(get_db)):
+def get_teachers(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     return db.query(Teachers).all()
 
 
 
 @router.post("/teachers/", response_model=teacher_schema.TeacherResponse)
-def create_teacher(teacher: teacher_schema.TeacherCreate, db: Session = Depends(get_db)):
+def create_teacher(teacher: teacher_schema.TeacherCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     try:
         db_teacher = Teachers(
             TeacherName=teacher.TeacherName,
